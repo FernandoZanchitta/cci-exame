@@ -182,13 +182,12 @@ export default function Home() {
             onPlay={play}
           /> : <></>
         }
-        <button style={!isRecording && blobURL !== "" ? {color: "#fff"} : {}} onClick={startRecording} disabled={isRecording}>
+        <button style={blobURL !== "" ? {color: "#fff"} : {}} onClick={startRecording} disabled={isRecording}>
           Gravar
         </button>
-        <button style={!isRecording && blobURL !== "" ? {color: "#fff"} : {}} onClick={stopRecording} disabled={!isRecording}>
+        <button style={blobURL !== "" ? {color: "#fff"} : {}} onClick={stopRecording} disabled={!isRecording}>
           Parar
         </button>
-        <audio src={blobURL} controls="controls"/>
       </div>
       {/* <div className="absolute bg-white bottom-2 left-2 p-2 rounded-xl text-2xl">
         <button onClick={toggleCustomEditor}>
