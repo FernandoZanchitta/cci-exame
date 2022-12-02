@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
 import SceneInit from "../lib/SceneInit";
-import CustomEditor from "./components/CustomEditor";
 import FragmentShader from "../lib/Shaders";
 import VertexShader from "../lib/ShadersVertex";
 import MicRecorder from 'mic-recorder-to-mp3';
@@ -96,12 +95,6 @@ export default function Home() {
     test.animate();
   }, []);
 
-  // note: Custom editor helpers.
-  // const [showCustomEditor, setShowCustomEditor] = useState(false);
-  // const toggleCustomEditor = () => {
-  //   setShowCustomEditor(!showCustomEditor);
-  // };
-
   const [Mp3Recorder, setMp3Recorder] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [blobURL, setBlobURL] = useState("");
@@ -176,7 +169,7 @@ export default function Home() {
         }
         <audio
             id="myAudio"
-            src="teste.mp3"
+            src="queen.mp3"
             className="w-200"
             controls
             autoPlay
