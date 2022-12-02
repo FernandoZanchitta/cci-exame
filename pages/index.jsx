@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import SceneInit from "./lib/SceneInit";
+import SceneInit from "../lib/SceneInit";
 import CustomEditor from "./components/CustomEditor";
-import { vertexShader, fragmentShader } from "./lib/Shaders";
+import FragmentShader from "../lib/Shaders";
+import VertexShader from "../lib/ShadersVertex";
+import MicRecorder from 'mic-recorder-to-mp3';
 
 export default function Home() {
-  let test, audioContext, audioElement, dataArray, analyser, source;
+  let audioContext, audioElement, dataArray, analyser, source;
+  const [test, setTest] = useState(new SceneInit("myThreeJsCanvas"))
 
   let gui;
   const initGui = async () => {
@@ -49,8 +52,8 @@ export default function Home() {
     const planeCustomMaterial = new THREE.ShaderMaterial({
       // note: this is where the magic happens
       uniforms: uniforms,
-      vertexShader: vertexShader(),
-      fragmentShader: fragmentShader(),
+      vertexShader: VertexShader(),
+      fragmentShader: FragmentShader(),
       wireframe: true,
     });
     const planeMesh = new THREE.Mesh(planeGeometry, planeCustomMaterial);
@@ -60,7 +63,6 @@ export default function Home() {
     planeMesh.scale.z = 2;
     planeMesh.position.y = 8;
     test.scene.add(planeMesh);
-
     if (gui === undefined) {
       await initGui();
       const audioWaveGui = gui.addFolder("audio waveform");
@@ -90,21 +92,96 @@ export default function Home() {
   };
 
   useEffect(() => {
-    test = new SceneInit("myThreeJsCanvas");
     test.initScene();
     test.animate();
   }, []);
+
+  // note: Custom editor helpers.
+  // const [showCustomEditor, setShowCustomEditor] = useState(false);
+  // const toggleCustomEditor = () => {
+  //   setShowCustomEditor(!showCustomEditor);
+  // };
+
+  const [Mp3Recorder, setMp3Recorder] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [blobURL, setBlobURL] = useState("");
+  const [isBlocked, setIsBlocked] = useState(false);
+
+  function waitPermissions(){
+    navigator.mediaDevices.getUserMedia({audio: true},
+      () => {
+        console.log("Permissão cedida");
+        setIsBlocked(false);
+      },
+      () => {
+        console.log("Permissão negada");
+        setIsBlocked(true);
+      }
+    );
+  }
+
+  useEffect(() => {
+    waitPermissions();
+    setMp3Recorder(new MicRecorder({ bitRate: 128 }));
+  }, [])
+
+  const startRecording = () => {
+    if(isBlocked){
+      alert("Permissão negada");
+    }else{
+      Mp3Recorder
+        .start()
+        .then(() => {
+          setIsRecording(true);
+        }).catch(e => {
+          console.log(e);
+          alert("Erro ao gravar áudio");
+        })
+    }
+  }
+
+  const stopRecording = async () => {
+    await Mp3Recorder
+      .stop()
+      .getMp3()
+      .then(([buffer, blob]) => {
+        const blobURLaux = URL.createObjectURL(blob)
+        setBlobURL(blobURLaux);
+        console.log(blobURLaux)
+        setIsRecording(false);
+      }).catch((e) => console.log(e));
+  }
+
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="absolute top-5 center-2">
+        {
+          !isRecording ?
+          <button style={{color: "#fff", alignSelf: "center"}} onClick={startRecording} disabled={isRecording}>
+            Gravar
+          </button>:
+          <button style={{color: "#fff", alignSelf: "center"}} onClick={stopRecording} disabled={!isRecording}>
+            Parar
+          </button>
+        }
+        {!isRecording && blobURL !== "" ?
+          <audio
+            id="myAudio"
+            src={blobURL}
+            className="w-200"
+            controls
+            autoPlay
+            onPlay={play}
+          /> : <></>
+        }
         <audio
-          id="myAudio"
-          src="./teste.mp3"
-          className="w-200"
-          controls
-          autoPlay
-          onPlay={play}
-        />
+            id="myAudio"
+            src="teste.mp3"
+            className="w-200"
+            controls
+            autoPlay
+            onPlay={play}
+          />
       </div>
       <canvas id="myThreeJsCanvas"></canvas>
     </div>
