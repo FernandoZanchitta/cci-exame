@@ -31,8 +31,6 @@ export default class SceneInit {
       colorA: { type: "vec3", value: new THREE.Color(0xffffff) },
     };
 
-    // specify a canvas which is already created in the HTML file and tagged by an id
-    // aliasing enabled
     const canvas = document.getElementById(this.canvasID);
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -47,24 +45,20 @@ export default class SceneInit {
     this.stats = Stats();
     document.body.appendChild(this.stats.dom);
 
-    // ambient light which is for the whole scene
+
     let ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     ambientLight.castShadow = false;
     this.scene.add(ambientLight);
 
-    // spot light which is illuminating the chart directly
     let spotLight = new THREE.SpotLight(0xffffff, 0.55);
     spotLight.castShadow = true;
     spotLight.position.set(0, 80, 10);
     this.scene.add(spotLight);
 
-    // if window resizes
     window.addEventListener("resize", () => this.onWindowResize(), false);
   }
 
   animate() {
-    // NOTE: Window is implied.
-    // requestAnimationFrame(this.animate.bind(this));
     window.requestAnimationFrame(this.animate.bind(this));
     this.render();
     this.stats.update();

@@ -44,18 +44,8 @@ export default function Home() {
         type: "float[64]",
         value: dataArray,
       },
-      // u_black: { type: "vec3", value: new THREE.Color(0x000000) },
-      // u_white: { type: "vec3", value: new THREE.Color(0xffffff) },
     };
-
-    // note: uncomment these geometries to see different visualizations
-    // const planeGeometry = new THREE.BoxGeometry(64, 64, 8, 64, 64, 8);
-    // const planeGeometry = new THREE.SphereGeometry(16, 64, 64);
-
-    // note: set up plane mesh and add it to the scene
-    const planeGeometry = new THREE.PlaneGeometry(64, 64, 64, 64);
-    // const planeMaterial = new THREE.MeshNormalMaterial({ wireframe: true });
-    // const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+    const planeGeometry = new THREE.BoxGeometry(64, 64, 8, 64, 64, 8);
     const planeCustomMaterial = new THREE.ShaderMaterial({
       // note: this is where the magic happens
       uniforms: uniforms,
@@ -104,13 +94,6 @@ export default function Home() {
     test.initScene();
     test.animate();
   }, []);
-
-  // note: Custom editor helpers.
-  // const [showCustomEditor, setShowCustomEditor] = useState(false);
-  // const toggleCustomEditor = () => {
-  //   setShowCustomEditor(!showCustomEditor);
-  // };
-
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="absolute top-5 center-2">
@@ -123,13 +106,7 @@ export default function Home() {
           onPlay={play}
         />
       </div>
-      {/* <div className="absolute bg-white bottom-2 left-2 p-2 rounded-xl text-2xl">
-        <button onClick={toggleCustomEditor}>
-          {showCustomEditor ? <div>⬅️ 💻</div> : <div>➡ 💻</div>}
-        </button>
-      </div> */}
       <canvas id="myThreeJsCanvas"></canvas>
-      {/* {showCustomEditor ? <CustomEditor /> : null} */}
     </div>
   );
 }
