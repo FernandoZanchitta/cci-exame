@@ -7,7 +7,7 @@ import MicRecorder from 'mic-recorder-to-mp3';
 
 export default function Home() {
   let audioContext, audioElement, dataArray, analyser, source;
-  const [test, setTest] = useState(null)
+  const [test, setTest] = useState(new SceneInit("myThreeJsCanvas"))
 
   let gui;
   const initGui = async () => {
@@ -100,12 +100,9 @@ export default function Home() {
     render();
   };
 
-  async function initializeTest(){
-    setTest(new SceneInit("myThreeJsCanvas"));
-  }
-
   useEffect(() => {
-    initializeTest()
+    test.initScene();
+    test.animate();
   }, []);
 
   // note: Custom editor helpers.
@@ -139,10 +136,8 @@ export default function Home() {
 
   const startRecording = () => {
     if(isBlocked){
-      console.log("Permissão negada");
       alert("Permissão negada");
     }else{
-      console.log("iniciando gravação")
       Mp3Recorder
         .start()
         .then(() => {
@@ -155,9 +150,6 @@ export default function Home() {
   }
 
   const stopRecording = async () => {
-    console.log("stopping")
-    test.initScene();
-    test.animate();
     await Mp3Recorder
       .stop()
       .getMp3()
@@ -172,6 +164,15 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="absolute top-5 center-2">
+        {
+          !isRecording ?
+          <button style={{color: "#fff", alignSelf: "center"}} onClick={startRecording} disabled={isRecording}>
+            Gravar
+          </button>:
+          <button style={{color: "#fff", alignSelf: "center"}} onClick={stopRecording} disabled={!isRecording}>
+            Parar
+          </button>
+        }
         {!isRecording && blobURL !== "" ?
           <audio
             id="myAudio"
@@ -182,12 +183,14 @@ export default function Home() {
             onPlay={play}
           /> : <></>
         }
-        <button style={blobURL !== "" ? {color: "#fff"} : {}} onClick={startRecording} disabled={isRecording}>
-          Gravar
-        </button>
-        <button style={blobURL !== "" ? {color: "#fff"} : {}} onClick={stopRecording} disabled={!isRecording}>
-          Parar
-        </button>
+        <audio
+            id="myAudio"
+            src="teste.mp3"
+            className="w-200"
+            controls
+            autoPlay
+            onPlay={play}
+          />
       </div>
       {/* <div className="absolute bg-white bottom-2 left-2 p-2 rounded-xl text-2xl">
         <button onClick={toggleCustomEditor}>
