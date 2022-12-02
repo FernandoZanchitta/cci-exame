@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import SceneInit from "./lib/SceneInit";
+import SceneInit from "../lib/SceneInit";
 import CustomEditor from "./components/CustomEditor";
-import FragmentShader from "./lib/Shaders";
-import VertexShader from "./lib/ShadersVertex";
+import FragmentShader from "../lib/Shaders";
+import VertexShader from "../lib/ShadersVertex";
 import MicRecorder from 'mic-recorder-to-mp3';
 
 export default function Home() {
