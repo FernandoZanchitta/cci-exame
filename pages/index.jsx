@@ -3,9 +3,11 @@ import * as THREE from "three";
 import SceneInit from "./lib/SceneInit";
 import CustomEditor from "./components/CustomEditor";
 import { vertexShader, fragmentShader } from "./lib/Shaders";
+import MicRecorder from 'mic-recorder-to-mp3';
 
 export default function Home() {
-  let test, audioContext, audioElement, dataArray, analyser, source;
+  let audioContext, audioElement, dataArray, analyser, source;
+  const [test, setTest] = useState(null)
 
   let gui;
   const initGui = async () => {
@@ -70,7 +72,6 @@ export default function Home() {
     planeMesh.scale.z = 2;
     planeMesh.position.y = 8;
     test.scene.add(planeMesh);
-
     if (gui === undefined) {
       await initGui();
       const audioWaveGui = gui.addFolder("audio waveform");
@@ -99,10 +100,12 @@ export default function Home() {
     render();
   };
 
+  async function initializeTest(){
+    setTest(new SceneInit("myThreeJsCanvas"));
+  }
+
   useEffect(() => {
-    test = new SceneInit("myThreeJsCanvas");
-    test.initScene();
-    test.animate();
+    initializeTest()
   }, []);
 
   // note: Custom editor helpers.
@@ -111,17 +114,81 @@ export default function Home() {
   //   setShowCustomEditor(!showCustomEditor);
   // };
 
+  const [Mp3Recorder, setMp3Recorder] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [blobURL, setBlobURL] = useState("");
+  const [isBlocked, setIsBlocked] = useState(false);
+
+  function waitPermissions(){
+    navigator.mediaDevices.getUserMedia({audio: true},
+      () => {
+        console.log("Permissão cedida");
+        setIsBlocked(false);
+      },
+      () => {
+        console.log("Permissão negada");
+        setIsBlocked(true);
+      }
+    );
+  }
+
+  useEffect(() => {
+    waitPermissions();
+    setMp3Recorder(new MicRecorder({ bitRate: 128 }));
+  }, [])
+
+  const startRecording = () => {
+    if(isBlocked){
+      console.log("Permissão negada");
+      alert("Permissão negada");
+    }else{
+      console.log("iniciando gravação")
+      Mp3Recorder
+        .start()
+        .then(() => {
+          setIsRecording(true);
+        }).catch(e => {
+          console.log(e);
+          alert("Erro ao gravar áudio");
+        })
+    }
+  }
+
+  const stopRecording = async () => {
+    console.log("stopping")
+    test.initScene();
+    test.animate();
+    await Mp3Recorder
+      .stop()
+      .getMp3()
+      .then(([buffer, blob]) => {
+        const blobURLaux = URL.createObjectURL(blob)
+        setBlobURL(blobURLaux);
+        console.log(blobURLaux)
+        setIsRecording(false);
+      }).catch((e) => console.log(e));
+  }
+
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="absolute top-5 center-2">
-        <audio
-          id="myAudio"
-          src="./teste.mp3"
-          className="w-200"
-          controls
-          autoPlay
-          onPlay={play}
-        />
+        {!isRecording && blobURL !== "" ?
+          <audio
+            id="myAudio"
+            src={blobURL}
+            className="w-200"
+            controls
+            autoPlay
+            onPlay={play}
+          /> : <></>
+        }
+        <button style={!isRecording && blobURL !== "" ? {color: "#fff"} : {}} onClick={startRecording} disabled={isRecording}>
+          Gravar
+        </button>
+        <button style={!isRecording && blobURL !== "" ? {color: "#fff"} : {}} onClick={stopRecording} disabled={!isRecording}>
+          Parar
+        </button>
+        <audio src={blobURL} controls="controls"/>
       </div>
       {/* <div className="absolute bg-white bottom-2 left-2 p-2 rounded-xl text-2xl">
         <button onClick={toggleCustomEditor}>
