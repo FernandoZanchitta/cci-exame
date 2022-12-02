@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import * as THREE from "three";
 import SceneInit from "./lib/SceneInit";
 import CustomEditor from "./components/CustomEditor";
-import { vertexShader, fragmentShader } from "./lib/Shaders";
+import FragmentShader from "./lib/Shaders";
+import VertexShader from "./lib/ShadersVertex";
 import MicRecorder from 'mic-recorder-to-mp3';
 
 export default function Home() {
@@ -61,8 +62,8 @@ export default function Home() {
     const planeCustomMaterial = new THREE.ShaderMaterial({
       // note: this is where the magic happens
       uniforms: uniforms,
-      vertexShader: vertexShader(),
-      fragmentShader: fragmentShader(),
+      vertexShader: VertexShader(),
+      fragmentShader: FragmentShader(),
       wireframe: true,
     });
     const planeMesh = new THREE.Mesh(planeGeometry, planeCustomMaterial);
